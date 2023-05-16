@@ -2,8 +2,22 @@ const database = require("./database");
 const { body, validationResult } = require("express-validator");
 
 const getUsers = (req, res) => {
+  let sqlBis = "select * from users ";
+  const sqlValuesBis = [];
+
+  if (req.query.language != null) {
+    sqlBis += " where language=?";
+    sqlValuesBis.push(req.query.language);
+    if (req.query.language != null) {
+      sqlBis += " and city=?";
+      sqlValuesBis.push(req.query.city);
+    }
+  } else if (req.query.city != null) {
+    sqlBis += !"where city=?";
+    sqlValuesBis.push(req.query.city);
+  }
   database
-    .query("select * from users")
+    .query(sqlBis, sqlValuesBis)
     .then(([users]) => {
       res.status(200).json(users);
     })
@@ -86,7 +100,7 @@ const validateUser = [
   },
 ];
 
-const deleteUser= (req, res) => {
+const deleteUser = (req, res) => {
   const id = parseInt(req.params.id);
 
   database
@@ -111,5 +125,4 @@ module.exports = {
   updateUser,
   validateUser,
   deleteUser,
-  
 };
